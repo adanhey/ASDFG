@@ -1,6 +1,6 @@
 import requests
 import jsonpath
-import setting
+from ASDFG import setting
 
 host = setting.host
 

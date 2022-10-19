@@ -1,5 +1,5 @@
 import requests
-import setting
+from ASDFG import setting
 
 host = setting.host
 

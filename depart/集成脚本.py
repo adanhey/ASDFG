@@ -2,7 +2,7 @@ from alllist import *
 from delete_thing import *
 from create_thing import *
 import hashlib
-import setting
+from ASDFG import setting
 
 host = setting.host
 
@@ -26,7 +26,7 @@ def del_location_from_storagename(storagename, locationname=None):
     while True:
         locationlist = []
         page = 1
-        location = get_kuwei(cookie=cookie, storageid=storageid, page=page, size=100)
+        location = get_location(cookie=cookie, storageid=storageid, page=page, size=100)
         if locationname:
             for i in location['data']['records']:
                 if locationname in i['storageLocationName']:

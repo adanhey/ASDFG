@@ -2,7 +2,7 @@ import requests
 import jsonpath
 from get_code import *
 from alllist import *
-import setting
+from ASDFG import setting
 
 host = setting.host
 
