@@ -1,5 +1,5 @@
 from ASDFG.depart.get_code import *
-from ASDFG.depart.alllist import *
+from ASDFG.depart.list_thing import *
 
 
 class Create_request(code_request, List_request):
@@ -111,7 +111,6 @@ class Create_request(code_request, List_request):
             data['parentId'] = parentid
             data['ids'] = parentids
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
-        print(result.text)
 
     def create_bj(self, typename, name, code):
         bjcode = self.bj_code()
@@ -137,19 +136,85 @@ class Create_request(code_request, List_request):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
 
-    def save_bj_gys(self, typename, bjname, **kwargs):
-        url = '%s/es/supplierSparePart/save' % self.host
-        bjid = self.bj_list(1, typename, 100, bjname)
+    def create_appeal(self, appealTypeName, appealLabelId, appealLabel, customerName, customerId, contactName, phone,
+                      deptId, deptName, appealCode, appealType, labelId, country, city, area, address, province="",
+                      productInfo=None, picture="", fieldExtensions=None, label=None, expectedStartTime=None,
+                      expectedEndTime=None, describe=None):
+        url = '%s/es/appeal/save' % self.host
         data = {
-            "id": bjid,
-            "supplierEntities": [
-                {
-                    "id": "1580092636393418753"
-                }
-            ]
+            "customerName": customerName,
+            "customerId": customerId,
+            "contactName": contactName,
+            "phone": phone,
+            "country": country,
+            "province": province,
+            "city": city,
+            "area": area,
+            "address": address,
+            "deptId": deptId,
+            "deptName": deptName,
+            "appealCode": appealCode,
+            "appealType": appealType,
+            "label": label,
+            "labelId": labelId,
+            "expectedStartTime": expectedStartTime,
+            "expectedEndTime": expectedEndTime,
+            "describe": describe,
+            "picture": picture,
+            "productInfo": productInfo,
+            "appealTypeName": appealTypeName,
+            "fieldExtensions": fieldExtensions,
+            "appealLabelId": appealLabelId,
+            "appealLabel": appealLabel
         }
-        for suptype, sup in kwargs.items():
-            supid = self.get_suppliertree(suptype)
-            data['supplierEntities'].append({"id": supid})
+        if data['productInfo'] == None:
+            data['productInfo'] = []
+        result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
+
+    def create_order(self, orderNo, rootId, customerName, customerId, contactName, phone,
+                     deptId, deptName, orderTypeId, orderType, labelId, country, city, area, address, province="",
+                     expectedStartTime=None, expectedEndTime=None, productInfo=None, picture="", fieldExtensions="{}",
+                     describe=None, dispatchType=None, servicePerson=None, servicePersonId=None,
+                     servicePersonPhone=None, assistPerson=None, assistPersonId=None, poolIds=None,
+                     maintenanceType=None, maintenanceTypeId=None, label="紧急工单", serviceItems=None):
+        url = 'https://huiserver1.iotdataserver.net/es/order/save'
+        data = {
+            "customerName": customerName,
+            "customerId": customerId,
+            "contactName": contactName,
+            "phone": phone,
+            "country": country,
+            "province": province,
+            "city": city,
+            "area": area,
+            "address": address,
+            "deptId": deptId,
+            "deptName": deptName,
+            "orderNo": orderNo,
+            "orderType": orderType,
+            "orderTypeId": orderTypeId,
+            "dispatchType": dispatchType,
+            "servicePerson": servicePerson,
+            "servicePersonId": servicePersonId,
+            "servicePersonPhone": servicePersonPhone,
+            "assistPerson": assistPerson,
+            "assistPersonId": assistPersonId,
+            "poolIds": poolIds,
+            "describe": describe,
+            "productInfo": productInfo,
+            "rootId": rootId,
+            "maintenanceType": maintenanceType,
+            "maintenanceTypeId": maintenanceTypeId,
+            "label": label,
+            "labelId": labelId,
+            "expectedStartTime": expectedStartTime,
+            "expectedEndTime": expectedEndTime,
+            "picture": picture,
+            "serviceItems": serviceItems,
+            "fieldExtensions": fieldExtensions
+        }
+        if data['productInfo'] == None:
+            data['productInfo'] = []
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result

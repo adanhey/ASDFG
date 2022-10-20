@@ -1,6 +1,5 @@
 import jsonpath
-from ASDFG.interface_ability.for_all_interface import Huiserver_interface
-
+from ASDFG.huiserver_interface_base import Huiserver_interface
 
 class Interface_list(Huiserver_interface):
     def __init__(self):

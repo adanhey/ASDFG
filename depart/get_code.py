@@ -17,3 +17,8 @@ class code_request(Interface_code):
         url = '%s/es/common/getCode/BJ' % self.host
         result = requests.session().get(url=url, cookies=self.cookie)
         return result.json()['data']
+
+    def get_code(self,codetype):
+        url = '%s/es/common/getCode/%s' % (self.host,codetype)
+        result = requests.session().get(url=url, cookies=self.cookie)
+        return result.json()['data']
