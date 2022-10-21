@@ -15,3 +15,4 @@ class Interface_list(Huiserver_interface):
             return jsonresult
         else:
             return jsonresult[0]
+

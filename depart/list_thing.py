@@ -6,20 +6,20 @@ import requests
 class List_request(Interface_list):
     def get_suppliertree(self, typeName):
         url = '%s/es/supplierType/getTreeList' % self.host
-        result = requests.session().post(url=url, cookies=self.cookie)
+        result = requests.session().post(url=url, cookies=self.cookie, json={})
         jsonresult = self.find_from_result(result.json(), "typeName", typeName)
         return jsonresult
 
-    def get_cangkutree(self, storagetypename):
+    def get_storagetree(self, storagetypename):
         url = '%s/es/storage/getTreeList' % self.host
-        result = requests.session().post(url=url, cookies=self.cookie)
+        result = requests.session().post(url=url, cookies=self.cookie, json={})
         jsonresult = self.find_from_result(result.json(), "storageName", storagetypename)
         return jsonresult
 
     def get_sparePartstree(self, sparePartsname):
         url = '%s/es/sparePartsType/getTreeList' % self.host
         result = requests.session().post(url=url, cookies=self.cookie)
-        jsonresult = self.find_from_result(result.json(), "typeName" % sparePartsname)
+        jsonresult = self.find_from_result(result.json(), "typeName", sparePartsname)
         return jsonresult
 
     def get_location(self, storageid, page=1, size=20, used="", storagelocationname=""):
@@ -83,7 +83,7 @@ class List_request(Interface_list):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result.json()
 
-    def bj_list(self, page, typename, size=100, name=None):
+    def list_spares(self, typename, size=100, page=1, name=None):
         url = '%s/es/spareParts/list' % self.host
         typeid = self.get_sparePartstree(typename)['id']
         data = {
@@ -98,7 +98,7 @@ class List_request(Interface_list):
 
     def list_storage_spareparts(self, storageId, sparePartsName="", sparePartsCode=""):
         '''
-        查询仓库备件
+        查询仓库备件库存
         :param storageId: 仓库id
         :param sparePartsName: 备件名称筛选
         :param sparePartsCode: 备件编码
@@ -117,7 +117,7 @@ class List_request(Interface_list):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result.json()
 
-    def storage_ListBySpareParts(self, depart_id, storageName=None, page=1, size=100):
+    def spare_listbystorage(self, depart_id, storageName=None, page=1, size=100):
         '''
         根据备件id查询所有仓库下该备件库存
         :param depart_id: 备件id
@@ -133,7 +133,7 @@ class List_request(Interface_list):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
 
-    def personal_ListBySpareParts(self, depart_id, employeeName=None, page=1, size=100):
+    def spare_listbypersonal(self, depart_id, employeeName=None, page=1, size=100):
         '''
         根据备件id查询所有个人仓库下该备件库存
         :param depart_id: 备件id
@@ -232,5 +232,24 @@ class List_request(Interface_list):
             data['deptIds'] = []
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
-# rarr = List_request()
-# print(rarr.employee_list_by_query().text)
+
+    def employee_SparePart_list(self, visualAngleType=1, allocationNo="", personalParam="", applyEndTime=None,
+                                applyStartTime=None, status=None, page=1, size=100):
+        if status is None:
+            status = []
+        url = '%s/es/employeeSparePart/queryAllocation' % self.host
+        data = {
+            "visualAngleType": visualAngleType,
+            "allocationNo": allocationNo,
+            "personalParam": personalParam,
+            "applyStartTime": applyStartTime,
+            "applyEndTime": applyEndTime,
+            "status": status,
+            "current": page,
+            "size": size
+        }
+        result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
+
+rarr = List_request()
+# print(rarr.employee_SparePart_list().text)

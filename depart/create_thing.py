@@ -24,7 +24,7 @@ class Create_request(code_request, List_request):
             "storageTypeName": cktype,
         }
         if parentName:
-            ck_info = self.get_cangkutree(parentName)
+            ck_info = self.get_storagetree(parentName)
             data['parentName'] = ck_info['storageName']
             data['parentId'] = ck_info['id']
             data['ids'] = ck_info['ids']
@@ -101,7 +101,6 @@ class Create_request(code_request, List_request):
             "typeName": name,
             "typeCode": code,
             "remark": "",
-            "parentName": "类别1",
             "id": "",
         }
         if parentname:
@@ -111,6 +110,7 @@ class Create_request(code_request, List_request):
             data['parentId'] = parentid
             data['ids'] = parentids
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
 
     def create_bj(self, typename, name, code):
         bjcode = self.bj_code()

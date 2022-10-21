@@ -4,15 +4,17 @@ import time
 from list_thing import *
 from delete_thing import *
 from create_thing import *
+from other_use import *
 
 list_request = List_request()
 delete_request = Delete_request()
 create_request = Create_request()
+other_request = Other_request()
 
 
 # 清空仓库下库位
 def del_location_from_storagename(storagename, locationname=None):
-    locationresult = list_request.get_cangkutree(storagename)
+    locationresult = list_request.get_storagetree(storagename)
     storageid = locationresult['id']
     while True:
         locationlist = []
@@ -48,7 +50,7 @@ def del_gys_from_gystype(typename):
 
 # 清理子级仓库
 def del_ck_from_ck(storagename):
-    a = list_request.get_cangkutree(storagename)
+    a = list_request.get_storagetree(storagename)
     names = jsonpath.jsonpath(a, '$...storageName')
     ids = jsonpath.jsonpath(a, '$...id')
     for name in names:
@@ -75,7 +77,7 @@ def del_gysty_from_gysty(gystypename):
 
 
 def add_kw_from_ck(storagename):
-    a = list_request.get_cangkutree(storagename)
+    a = list_request.get_storagetree(storagename)
     create_request.create_kw(a['id'], a['ids'])
     for i in a['children']:
         create_request.create_kw(i['id'], i['ids'])
@@ -119,11 +121,40 @@ def create_orderquickly(ordertypename, customerName, orderlabel="紧急工单"):
                                          area=customerresult['area'], address=customerresult['address'],
                                          deptId=customerresult['organizationId'],
                                          deptName=customerresult['organization'], orderNo=ordercode,
-                                         expectedStartTime=nowday, expectedEndTime=nowday,rootId=typeresult['rootId'])
+                                         expectedStartTime=nowday, expectedEndTime=nowday, rootId=typeresult['rootId'])
     return result
 
 
-print(create_orderquickly("调试工单", "1", "紧急工单").text)
+def storage_inout_applyquickly(codetype, storagename, *args):
+    inoutcode = create_request.get_code(codetype)
+    storageid = list_request.get_storagetree(storagename)['id']
+    # 备件类别---备件名称---仓位名称---数量
+    sparklist = []
+    for i in args:
+        detail = i.split('---')
+        locationresult = list_request.get_location(storageid, storagelocationname=detail[2])
+        locationid = locationresult['data']['records'][0]['id']
+        spareresult = list_request.list_spares(detail[0], name=str(detail[1]))
+        sparedetail = spareresult['data']['records'][0]
+        data = {
+                   "storageLocationName": detail[2],
+                   "storageLocationId": locationid,
+                   "storageInOutNum": int(detail[3]),
+                   "sparePartsName": detail[1],
+                   "sparePartsId": sparedetail['id'],
+                   "sparePartsCode": sparedetail['sparePartsCode'],
+                   "typeName": sparedetail['typeName'],
+                   "sparePartsModel": sparedetail['sparePartsModel'],
+                   "brand": sparedetail['brand'],
+                   "unitName": sparedetail['unitName'],
+                   "storageName": storagename
+               }
+        sparklist.append(data)
+    result = other_request.storage_in_apply(inoutcode, storagename, storageid, sparklist)
+    return result
+for i in range(20):
+    create_request.create_sparepartstype("zzz%s"%i,"zzz%s"%i)
+# print('结果：   %s' % del_ck_from_ck("一层2"))
 # 仓库及子仓库加库位
 # add_kw_from_ck('一层0')
 # del_ck_from_ck("一层%s" % i)
