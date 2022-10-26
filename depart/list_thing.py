@@ -251,5 +251,24 @@ class List_request(Interface_list):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
 
+    def approval_list(self, storageInCode="", storageInType=None,proposerId="",approverId="",startTime="",endTime="",status=1,view=3,page=1,size=100):
+        if storageInType is None:
+            storageInType = []
+        url = '%s/es/storageInApproval/list' % self.host
+        data = {
+            "storageInCode": storageInCode,
+            "storageInType": storageInType,
+            "proposerId": proposerId,
+            "approverId": approverId,
+            "startTime": startTime,
+            "endTime": endTime,
+            "status": status,
+            "view": view,
+            "current": page,
+            "size": size
+        }
+        result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
+
 rarr = List_request()
-# print(rarr.employee_SparePart_list().text)
+# print(rarr.approval_list().text)

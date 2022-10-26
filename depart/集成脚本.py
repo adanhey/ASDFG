@@ -4,12 +4,14 @@ import time
 from list_thing import *
 from delete_thing import *
 from create_thing import *
+from detail_thing import *
 from other_use import *
 
 list_request = List_request()
 delete_request = Delete_request()
 create_request = Create_request()
 other_request = Other_request()
+detail_request = Detail_request()
 
 
 # 清空仓库下库位
@@ -137,23 +139,37 @@ def storage_inout_applyquickly(codetype, storagename, *args):
         spareresult = list_request.list_spares(detail[0], name=str(detail[1]))
         sparedetail = spareresult['data']['records'][0]
         data = {
-                   "storageLocationName": detail[2],
-                   "storageLocationId": locationid,
-                   "storageInOutNum": int(detail[3]),
-                   "sparePartsName": detail[1],
-                   "sparePartsId": sparedetail['id'],
-                   "sparePartsCode": sparedetail['sparePartsCode'],
-                   "typeName": sparedetail['typeName'],
-                   "sparePartsModel": sparedetail['sparePartsModel'],
-                   "brand": sparedetail['brand'],
-                   "unitName": sparedetail['unitName'],
-                   "storageName": storagename
-               }
+            "storageLocationName": detail[2],
+            "storageLocationId": locationid,
+            "storageInOutNum": int(detail[3]),
+            "sparePartsName": detail[1],
+            "sparePartsId": sparedetail['id'],
+            "sparePartsCode": sparedetail['sparePartsCode'],
+            "typeName": sparedetail['typeName'],
+            "sparePartsModel": sparedetail['sparePartsModel'],
+            "brand": sparedetail['brand'],
+            "unitName": sparedetail['unitName'],
+            "storageName": storagename
+        }
+        print(data)
         sparklist.append(data)
     result = other_request.storage_in_apply(inoutcode, storagename, storageid, sparklist)
     return result
-for i in range(20):
-    create_request.create_sparepartstype("zzz%s"%i,"zzz%s"%i)
+
+
+# for i in range(100):
+#     print(storage_inout_applyquickly('CG', "1024测试", '类别1---bj_%s---默认库位---100' % i).text)
+result = list_request.approval_list(size=15).json()
+for i in result['data']['records']:
+    detail_result = detail_request.storageInOut_info(i['storageInId']).json()
+    storageInOutDetails = detail_result['data']['storageInOutDetailVoList']
+    other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
+                                      storageInOutDetails=storageInOutDetails)
+    other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
+                                      storageInOutDetails=storageInOutDetails,approvalLevel=2)
+
+# for i in range(20):
+#     create_request.create_sparepartstype("zzz%s"%i,"zzz%s"%i)
 # print('结果：   %s' % del_ck_from_ck("一层2"))
 # 仓库及子仓库加库位
 # add_kw_from_ck('一层0')

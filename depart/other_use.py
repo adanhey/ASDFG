@@ -83,7 +83,29 @@ class Other_request(Interface_list):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
 
-    def storage_out_apply(self, incode, storagename, storageid, detaillist, inouttype=1, remark="",type=1):
+    def storage_in_Approval(self, siid, storageInId, storageInCode, storageInOutDetails, storageInType=1,
+                            approvalLevel=1, sparePartsTypeNum=1, approvalStatus=1, status=4, remark=None):
+        url = '%s/es/storageInApproval/handle' % self.host
+        data = {
+            "storageInApprovalEntity": {
+                "id": siid,
+                "storageInId": storageInId,
+                "storageInCode": storageInCode,
+                "storageInType": storageInType,
+                "approvalLevel": approvalLevel,
+                "approverId": "771797340555354112",
+                "approver": "22.2",
+                "status": status,
+                "approvalStatus": approvalStatus,
+                "sparePartsTypeNum": sparePartsTypeNum,
+                "remark": remark
+            },
+            "storageInOutDetails": storageInOutDetails
+        }
+        result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
+
+    def storage_out_apply(self, incode, storagename, storageid, detaillist, inouttype=1, remark="", type=1):
         ''''''
         url = '%s/es/storageinoutdetails/storageOutApply' % self.host
         data = {
