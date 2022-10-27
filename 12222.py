@@ -1,34 +1,12 @@
-import jsonpath
+import threading
+import time
 
-a = { "store": {
-    "book": [
-      { "category": "reference",
-        "author": "Nigel Rees",
-        "title": "Sayings of the Century",
-        "price": 8.95
-      },
-      { "category": "fiction",
-        "author": "Evelyn Waugh",
-        "title": "Sword of Honour",
-        "price": 12.99
-      },
-      { "category": "fiction",
-        "author": "Herman Melville",
-        "title": "Moby Dick",
-        "isbn": "0-553-21311-3",
-        "price": 8.99
-      },
-      { "category": "fiction",
-        "author": "J. R. R. TolkienREES",
-        "title": "The Lord of the Rings",
-        "isbn": "0-395-19395-8",
-        "price": 22.99
-      }
-    ],
-    "bicycle": {
-      "color": "red",
-      "price": 19.95
-    }
-  }
-}
-print(jsonpath.jsonpath(a,"$..book[?(@.author =~ /.*REES/i)]"))
+
+def ifff (x,y):
+    for i in range(x,y):
+        print(i)
+        time.sleep(1)
+thread1 = threading.Thread(name='t1',target= ifff,args=(1,10))
+thread2 = threading.Thread(name='t2',target= ifff,args=(11,20))
+thread1.start()   #启动线程1
+thread2.start()   #启动线程2

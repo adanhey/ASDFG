@@ -1,4 +1,5 @@
 import datetime
+import threading
 import time
 
 from list_thing import *
@@ -127,7 +128,7 @@ def create_orderquickly(ordertypename, customerName, orderlabel="紧急工单"):
     return result
 
 
-def storage_inout_applyquickly(codetype, storagename, *args):
+def storage_in_applyquickly(codetype, storagename, *args):
     inoutcode = create_request.get_code(codetype)
     storageid = list_request.get_storagetree(storagename)['id']
     # 备件类别---备件名称---仓位名称---数量
@@ -157,16 +158,136 @@ def storage_inout_applyquickly(codetype, storagename, *args):
     return result
 
 
-# for i in range(100):
-#     print(storage_inout_applyquickly('CG', "1024测试", '类别1---bj_%s---默认库位---100' % i).text)
-result = list_request.approval_list(size=15).json()
-for i in result['data']['records']:
-    detail_result = detail_request.storageInOut_info(i['storageInId']).json()
-    storageInOutDetails = detail_result['data']['storageInOutDetailVoList']
-    other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
-                                      storageInOutDetails=storageInOutDetails)
-    other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
-                                      storageInOutDetails=storageInOutDetails,approvalLevel=2)
+def storage_out_applyquickly(codetype, storagename, recipientName=None, targetstoragename=None, outype=11, *args):
+    inoutcode = create_request.get_code(codetype)
+    storageid = list_request.get_storagetree(storagename)['id']
+    targetstorageid = None
+    recipientid = None
+    if targetstoragename:
+        targetstorageid = list_request.get_storagetree(storagename)['id']
+    if recipientName:
+        recipientid = list_request.emp_list(name=recipientName)['id']
+    # 备件类别---备件名称---仓位名称---数量
+    sparklist = []
+    for i in args:
+        detail = i.split('---')
+        locationresult = list_request.get_location(storageid, storagelocationname=detail[2])
+        locationid = locationresult['data']['records'][0]['id']
+        spareresult = list_request.list_spares(detail[0], name=str(detail[1]))
+        sparedetail = spareresult['data']['records'][0]
+        data = {
+            "storageLocationName": detail[2],
+            "storageLocationId": locationid,
+            "storageInOutNum": int(detail[3]),
+            "sparePartsName": detail[1],
+            "sparePartsId": sparedetail['id'],
+            "sparePartsCode": sparedetail['sparePartsCode'],
+            "typeName": sparedetail['typeName'],
+            "sparePartsModel": sparedetail['sparePartsModel'],
+            "brand": sparedetail['brand'],
+            "unitName": sparedetail['unitName'],
+            "storageName": storagename
+        }
+        sparklist.append(data)
+    result = other_request.storage_out_apply(outcode=inoutcode, storagename=storagename, storageid=storageid,
+                                             detaillist=sparklist, recipientId=recipientid, recipientName=recipientName,
+                                             targetStorageId=targetstorageid, targetStorageName=targetstoragename,
+                                             storageInOutType=outype)
+    return result
+
+
+def personaldb_quickly(empname, receivername, *args):
+    dbcode = create_request.get_code("DB")
+    empnameid = list_request.emp_list(name=empname)['id']
+    receiverid = list_request.emp_list(name=receivername)['id']
+    # 备件类别---备件名称---数量
+    sparklist = []
+    for i in args:
+        detail = i.split('---')
+        personaldb = list_request.personallsrare_list(empnameid)
+        personaldbid = list_request.find_from_result(personaldb.json(), "sparePartsName", detail[1])['id']
+        spareresult = list_request.list_spares(detail[0], name=str(detail[1]))
+        sparedetail = spareresult['data']['records'][0]
+        data = {
+            "allocationNum": int(detail[2]),
+            "sparePartsName": detail[1],
+            "sparePartsId": sparedetail['id'],
+            "sparePartsCode": sparedetail['sparePartsCode'],
+            "typeName": sparedetail['typeName'],
+            "sparePartsModel": sparedetail['sparePartsModel'],
+            "brand": sparedetail['brand'],
+            "unitName": sparedetail['unitName'],
+            "storageNum": 1,
+            "type": 2,
+            "personalSparePartsId": personaldbid
+        }
+        sparklist.append(data)
+    result = other_request.emp_diaobo(dbcode, empnameid, empname, receiverid, receivername, sparklist)
+    print(result.text)
+
+
+def approve_lots(size):
+    result = list_request.approval_in_list(size=size).json()
+    for i in result['data']['records']:
+        detail_result = detail_request.storageInOut_info(i['storageInId']).json()
+        storageInOutDetails = detail_result['data']['storageInOutDetailVoList']
+        other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
+                                          storageInOutDetails=storageInOutDetails)
+        other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
+                                          storageInOutDetails=storageInOutDetails, approvalLevel=2)
+
+
+def approve_out_lots(size):
+    result = list_request.approval_out_list(size=size).json()
+    for i in result['data']['records']:
+        detail_result = detail_request.storageInOut_info(i['storageOutId']).json()
+        storageInOutDetails = detail_result['data']['storageInOutDetailVoList']
+        print(other_request.storage_out_Approval(siid=i['id'], storageInId=i['storageOutId'],
+                                                 storageInCode='storageOutCode',
+                                                 storageInOutDetails=storageInOutDetails).text)
+
+
+def cre_bj(typename):
+    result = list_request.get_sparePartstree(typename)
+    result = create_request.find_from_result(result, "typeName", None, 1)
+    print(result)
+    for i in result:
+        name = i
+        for j in range(100):
+            bjcode = create_request.get_code("BJ")
+            print("%s: %s" % (typename, create_request.create_bj(name, "bj_%s" % j, bjcode).text))
+
+
+def st_in(typename):
+    for i in range(100):
+        storage_in_applyquickly("CG", "00000000", "%s---bj_%s---kukuwei-10---100" % (typename, i))
+
+
+def st_out(bjname):
+    for i in range(100):
+        print(storage_out_applyquickly("SL", "00000000", "admin", None, 11,
+                                       "晶体管0-0-2---%s---kukuwei-10---1" % bjname).text)
+
+
+
+thread1 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread2 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread3 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread4 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread5 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread6 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread7 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread8 = threading.Thread(name='t8', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread9 = threading.Thread(name='t9', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread1.start()  # 启动线程1
+thread2.start()  # 启动线程2
+thread3.start()  # 启动线程2
+thread4.start()  # 启动线程2
+thread5.start()  # 启动线程2
+thread6.start()  # 启动线程2
+thread7.start()  # 启动线程2
+thread8.start()  # 启动线程2
+thread9.start()  # 启动线程2
 
 # for i in range(20):
 #     create_request.create_sparepartstype("zzz%s"%i,"zzz%s"%i)

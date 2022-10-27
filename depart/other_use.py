@@ -105,36 +105,73 @@ class Other_request(Interface_list):
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
 
-    def storage_out_apply(self, incode, storagename, storageid, detaillist, inouttype=1, remark="", type=1):
-        ''''''
+    def storage_out_Approval(self, siid, storageInId, storageInCode, storageInOutDetails, storageInType=1,
+                             approvalLevel=1, sparePartsTypeNum=1, approvalStatus=1, status=4, remark=None):
+        url = '%s/es/storageOutApproval/approval' % self.host
+        data = {
+            "storageOutApprovalEntity": {
+                "id": siid,
+                "storageOutId": storageInId,
+                "storageOutCode": storageInCode,
+                "storageOutType": storageInType,
+                "approvalLevel": approvalLevel,
+                "approverId": "771797340555354112",
+                "approver": "22.2",
+                "status": status,
+                "approvalStatus": approvalStatus,
+                "sparePartsTypeNum": sparePartsTypeNum,
+                "remark": remark
+            },
+            "storageInOutDetails": storageInOutDetails
+        }
+        result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
+
+    def storage_out_apply(self, outcode, storagename, storageid, detaillist, recipientId=None, recipientName=None,
+                          targetStorageId=None, targetStorageName=None, remark="", storageInOutType=11, type=2):
+        '''
+        出库申请
+        :param outcode: 出库编号
+        :param storagename: 仓库名称
+        :param storageid: 仓库id
+        :param detaillist: 备件列表
+        :param recipientId: 接受人id
+        :param recipientName: 接受人姓名
+        :param targetStorageId: 目标仓库id
+        :param targetStorageName: 目标仓库名称
+        :param remark: 备注
+        :param storageInOutType: 进出类型，11为申领，12为调拨
+        :param type:
+        :return:
+        '''
         url = '%s/es/storageinoutdetails/storageOutApply' % self.host
         data = {
             "type": type,
-            "storageInOutType": 11,
-            "storageInOutCode": "SL20221021141635001",
-            "storageInOutRemark": null,
-            "storageName": "test1",
-            "storageId": "777237194550185984",
-            "targetStorageId": null,
-            "targetStorageName": null,
-            "recipientId": "778227610216992768",
-            "recipientName": "5555555555555555",
-            "storageOutDetails": [
-                {
-                    "sparePartsId": "780766892437704704",
-                    "sparePartsName": "驱蚊器翁123",
-                    "sparePartsCode": "韦尔奇123",
-                    "typeName": "类别AA01",
-                    "sparePartsModel": null,
-                    "brand": null,
-                    "unitName": null,
-                    "storageLocationId": "1582624861015748611",
-                    "storageLocationName": "位a-10",
-                    "storageInOutNum": 1,
-                    "type": 2,
-                    "storageNum": 6
-                }
-            ]
+            "storageInOutType": storageInOutType,
+            "storageInOutCode": outcode,
+            "storageInOutRemark": remark,
+            "storageName": storagename,
+            "storageId": storageid,
+            "targetStorageId": targetStorageId,
+            "targetStorageName": targetStorageName,
+            "recipientId": recipientId,
+            "recipientName": recipientName,
+            "storageOutDetails": detaillist
+        }
+        result = requests.session().post(url=url, cookies=self.cookie, json=data)
+        return result
+
+    def emp_diaobo(self,allocationNo,transfereeId,transfereeName,recipientId,recipientName,detaillist,allocationType=1,remark=None):
+        url = '%s/es/employeeSparePart/createAllocation' % self.host
+        data = {
+            "allocationType": allocationType,
+            "allocationNo": allocationNo,
+            "remark": remark,
+            "recipientId": recipientId,
+            "recipientName": recipientName,
+            "personalAllocationDetailList": detaillist,
+            "transfereeId": transfereeId,
+            "transfereeName": transfereeName
         }
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
