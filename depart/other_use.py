@@ -98,10 +98,13 @@ class Other_request(Interface_list):
                 "status": status,
                 "approvalStatus": approvalStatus,
                 "sparePartsTypeNum": sparePartsTypeNum,
-                "remark": remark
+                "remark": remark,
+                "updateTime": "2022-10-27 14:36:31",
+                "proposeTime":"2022-10-27 14:36:31"
             },
             "storageInOutDetails": storageInOutDetails
         }
+        print(data)
         result = requests.session().post(url=url, cookies=self.cookie, json=data)
         return result
 
@@ -120,7 +123,9 @@ class Other_request(Interface_list):
                 "status": status,
                 "approvalStatus": approvalStatus,
                 "sparePartsTypeNum": sparePartsTypeNum,
-                "remark": remark
+                "remark": remark,
+                "updateTime": "2022-10-27 14:36:31",
+                "proposeTime": "2022-10-27 14:36:31"
             },
             "storageInOutDetails": storageInOutDetails
         }

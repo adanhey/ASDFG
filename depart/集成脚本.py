@@ -223,18 +223,26 @@ def personaldb_quickly(empname, receivername, *args):
         }
         sparklist.append(data)
     result = other_request.emp_diaobo(dbcode, empnameid, empname, receiverid, receivername, sparklist)
-    print(result.text)
+    return result
 
 
 def approve_lots(size):
     result = list_request.approval_in_list(size=size).json()
+    time.sleep(3)
+    nowtime = time.time()
     for i in result['data']['records']:
         detail_result = detail_request.storageInOut_info(i['storageInId']).json()
         storageInOutDetails = detail_result['data']['storageInOutDetailVoList']
-        other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
-                                          storageInOutDetails=storageInOutDetails)
-        other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'], storageInCode='storageInCode',
-                                          storageInOutDetails=storageInOutDetails, approvalLevel=2)
+        print('%s:  %s' % (nowtime, other_request.storage_in_Approval(siid=i['id'], storageInId=i['storageInId'],
+                                                                      storageInCode=i['storageInCode'],
+                                                                      storageInOutDetails=storageInOutDetails).text))
+        result2 = list_request.approval_in_list(storageInCode=i['storageInCode'], size=1).json()
+        record = result2['data']['records'][0]
+        print('%s:  %s' % (nowtime, other_request.storage_in_Approval(siid=record['id'],
+                                                                      storageInId=record['storageInId'],
+                                                                      storageInCode=record['storageInCode'],
+                                                                      storageInOutDetails=storageInOutDetails,
+                                                                      approvalLevel=2).text))
 
 
 def approve_out_lots(size):
@@ -243,7 +251,7 @@ def approve_out_lots(size):
         detail_result = detail_request.storageInOut_info(i['storageOutId']).json()
         storageInOutDetails = detail_result['data']['storageInOutDetailVoList']
         print(other_request.storage_out_Approval(siid=i['id'], storageInId=i['storageOutId'],
-                                                 storageInCode='storageOutCode',
+                                                 storageInCode=i['storageOutCode'],
                                                  storageInOutDetails=storageInOutDetails).text)
 
 
@@ -269,46 +277,41 @@ def st_out(bjname):
                                        "晶体管0-0-2---%s---kukuwei-10---1" % bjname).text)
 
 
-
-thread1 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread2 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread3 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread4 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread5 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread6 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread7 = threading.Thread(name='t1', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread8 = threading.Thread(name='t8', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
-thread9 = threading.Thread(name='t9', target=personaldb_quickly, args=("admin", "admin", "晶体管0-0-2---bj_89---1"))
+thread1 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+thread2 = threading.Thread(name='t2', target=approve_lots, args=(1,))
+thread3 = threading.Thread(name='t3', target=approve_lots, args=(1,))
+thread4 = threading.Thread(name='t4', target=approve_lots, args=(1,))
+thread5 = threading.Thread(name='t5', target=approve_lots, args=(1,))
+thread6 = threading.Thread(name='t6', target=approve_lots, args=(1,))
+thread7 = threading.Thread(name='t7', target=approve_lots, args=(1,))
+thread8 = threading.Thread(name='t8', target=approve_lots, args=(1,))
+thread9 = threading.Thread(name='t9', target=approve_lots, args=(1,))
 thread1.start()  # 启动线程1
 thread2.start()  # 启动线程2
-thread3.start()  # 启动线程2
-thread4.start()  # 启动线程2
-thread5.start()  # 启动线程2
-thread6.start()  # 启动线程2
-thread7.start()  # 启动线程2
-thread8.start()  # 启动线程2
-thread9.start()  # 启动线程2
+thread3.start()  # 启动线程3
+thread4.start()  # 启动线程4
+thread5.start()  # 启动线程5
+thread6.start()  # 启动线程6
+thread7.start()  # 启动线程7
+thread8.start()  # 启动线程8
+thread9.start()  # 启动线程9
 
-# for i in range(20):
-#     create_request.create_sparepartstype("zzz%s"%i,"zzz%s"%i)
-# print('结果：   %s' % del_ck_from_ck("一层2"))
-# 仓库及子仓库加库位
-# add_kw_from_ck('一层0')
-# del_ck_from_ck("一层%s" % i)
-# del_location_from_storagename('浮')
-# 新建仓库
-# for i in range(3):
-#     create_ck( name='一层%s' % i, managename='郑俊鹏')
-#     for j in range(3):
-#         create_ck( name='二层%s-%s' % (i, j), managename='郑俊鹏', parentName='一层%s' % i)
-#         for z in range(3):
-#             create_ck( name='三层%s-%s-%s' % (i, j, z), managename='郑俊鹏', parentName='二层%s-%s' % (i, j))
-# create_ck( name='增加层级3', managename='郑俊鹏', parentName='增加')
-# del_ck_from_ck("一层0")
-# 新建供应商
-# for i in range(3):
-#     create_sup_type( name='一层%s' % i, code='一层%s' % i)
-#     for j in range(3):
-#         create_sup_type( name='二层%s-%s' % (i, j), code='二层%s-%s' % (i, j), typename='一层%s' % i)
-#         for z in range(3):
-#             create_sup_type( name='三层%s-%s-%s' % (i, j, z), code='三层%s-%s-%s' % (i, j, z), typename='二层%s-%s' % (i, j))
+
+# thread1 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread2 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread3 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread4 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread5 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread6 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread7 = threading.Thread(name='t1', target=approve_lots, args=(1,))
+# thread8 = threading.Thread(name='t8', target=approve_lots, args=(1,))
+# thread9 = threading.Thread(name='t9', target=approve_lots, args=(1,))
+# thread1.start()  # 启动线程1
+# thread2.start()  # 启动线程2
+# thread3.start()  # 启动线程2
+# thread4.start()  # 启动线程2
+# thread5.start()  # 启动线程2
+# thread6.start()  # 启动线程2
+# thread7.start()  # 启动线程2
+# thread8.start()  # 启动线程2
+# thread9.start()  # 启动线程2
