@@ -1,22 +1,24 @@
 import requests
-import jsonpath
-import setting
-
-host = setting.host
+from ASDFG.interface_ability.code_base import *
 
 
-def gys_code(cookie):
-    url = '%s/es/common/getCode/GYS' % host
-    result = requests.session().get(url=url, cookies=cookie)
-    return result.json()['data']
+class code_request(Interface_code):
+    def gys_code(self):
+        url = '%s/es/common/getCode/GYS' % self.host
+        result = requests.session().get(url=url, cookies=self.cookie)
+        return result.json()['data']
 
+    def ck_code(self):
+        url = '%s/es/common/getCode/ck' % self.host
+        result = requests.session().get(url=url, cookies=self.cookie)
+        return result.json()['data']
 
-def ck_code(cookie):
-    url = '%s/es/common/getCode/ck' % host
-    result = requests.session().get(url=url, cookies=cookie)
-    return result.json()['data']
+    def bj_code(self):
+        url = '%s/es/common/getCode/BJ' % self.host
+        result = requests.session().get(url=url, cookies=self.cookie)
+        return result.json()['data']
 
-def bj_code(cookie):
-    url = '%s/es/common/getCode/BJ'%host
-    result = requests.session().get(url=url, cookies=cookie)
-    return result.json()['data']
+    def get_code(self,codetype):
+        url = '%s/es/common/getCode/%s' % (self.host,codetype)
+        result = requests.session().get(url=url, cookies=self.cookie)
+        return result.json()['data']
