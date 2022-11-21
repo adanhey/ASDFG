@@ -1,0 +1,5 @@
+dictlist = {
+    "product_saveorupdate":{
+
+}
+}

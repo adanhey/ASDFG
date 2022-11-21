@@ -13,15 +13,15 @@ class Huiserver_interface():
             "serviceperson": self.get_cookie(env['%s_serviceperson' % env['mark']]['userName'],
                                              env['%s_serviceperson' % env['mark']]['password']),
             "serviceeengineer": self.get_cookie(env['%s_serviceeengineer' % env['mark']]['userName'],
-                                             env['%s_serviceeengineer' % env['mark']]['password']),
+                                                env['%s_serviceeengineer' % env['mark']]['password']),
             "elecengineer": self.get_cookie(env['%s_elecengineer' % env['mark']]['userName'],
-                                                env['%s_elecengineer' % env['mark']]['password']),
+                                            env['%s_elecengineer' % env['mark']]['password']),
             "admin": self.get_cookie(env['%s_admin' % env['mark']]['userName'],
-                                            env['%s_admin' % env['mark']]['password']),
+                                     env['%s_admin' % env['mark']]['password']),
             "costumeradmin": self.get_cookie(env['%s_costumeradmin' % env['mark']]['userName'],
-                                     env['%s_costumeradmin' % env['mark']]['password']),
+                                             env['%s_costumeradmin' % env['mark']]['password']),
             "costumeremp": self.get_cookie(env['%s_costumeremp' % env['mark']]['userName'],
-                                             env['%s_costumeremp' % env['mark']]['password']),
+                                           env['%s_costumeremp' % env['mark']]['password']),
         }
 
     def get_cookie(self, name, password):
@@ -31,35 +31,36 @@ class Huiserver_interface():
         login = requests.post(url=url, data=data)
         assert login.status_code == 200
         return login.cookies
-    
-    def take_cookie(self,user=None):
+
+    def take_cookie(self, user=None):
         if user:
-            coo = self.allcookie['%s'%user]
+            coo = self.allcookie['%s' % user]
             return coo
         else:
             return self.cookie
-    
-    def get_request(self,url,param=None,json=None,data=None,headers=None,user=None):
+
+    def get_request(self, url, param=None, json=None, data=None, headers=None, user=None):
         cookie = self.take_cookie(user)
-        result = requests.session().get(url=url,params=param,json=json,data=data,headers=headers,cookies=cookie)
+        result = requests.Session().get(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
         return result
-        
-    def post_request(self,url,param=None,json=None,data=None,headers=None,user=None):
+
+    def post_request(self, url, param=None, json=None, data=None, headers=None, user=None,files=None):
         cookie = self.take_cookie(user)
-        result = requests.session().post(url=url,params=param,json=json,data=data,headers=headers,cookies=cookie)
+        result = requests.Session().post(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie,
+                                         files=files)
         return result
 
     def put_request(self, url, param=None, json=None, data=None, headers=None, user=None):
         cookie = self.take_cookie(user)
-        result = requests.session().put(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
+        result = requests.Session().put(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
         return result
 
     def delete_request(self, url, param=None, json=None, data=None, headers=None, user=None):
         cookie = self.take_cookie(user)
-        result = requests.session().delete(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
+        result = requests.Session().delete(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
         return result
 
     def patch_request(self, url, param=None, json=None, data=None, headers=None, user=None):
         cookie = self.take_cookie(user)
-        result = requests.session().patch(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
+        result = requests.Session().patch(url=url, params=param, json=json, data=data, headers=headers, cookies=cookie)
         return result
